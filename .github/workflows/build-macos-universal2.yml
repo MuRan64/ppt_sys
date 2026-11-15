@@ -48,10 +48,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-release.txt
+          mkdir -p "${RUNNER_TEMP}/universal2-wheels"
+          python -m pip download --only-binary=:all: --no-deps \
+            --platform macosx_11_0_universal2 \
+            --python-version 3.11 --implementation cp --abi cp311 \
+            Pillow==13.0.0 --dest "${RUNNER_TEMP}/universal2-wheels"
+          python -m pip install --force-reinstall --no-deps \
+            "${RUNNER_TEMP}/universal2-wheels"/Pillow-*.whl
 
       - name: Build Universal 2 application
-        env:
-          FBD_UNIVERSAL2: '1'
         run: |
           python -m PyInstaller --clean --noconfirm packaging/fbd_to_ppt.spec
 
