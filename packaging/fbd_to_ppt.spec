@@ -2,6 +2,7 @@
 # Run from this release_build directory, or pass the absolute spec path.
 
 from pathlib import Path
+import os
 import sys
 from PyInstaller.utils.hooks import collect_submodules
 
@@ -29,6 +30,11 @@ BOOK_ADAPTERS = [
 datas = [(str(ROOT / "static"), "static")]
 hiddenimports = TEST_MODULES + BOOK_ADAPTERS + ["app_resources", "template_library", "generation_state"]
 hiddenimports += collect_submodules("PIL")
+EXCLUDES = ["numpy"]
+if sys.platform == "darwin" and os.environ.get("FBD_UNIVERSAL2") == "1":
+    # Pillow's WebP extension is architecture-specific in the build image.
+    # The book pipeline only needs TIFF/PNG/JPEG assets.
+    EXCLUDES += ["PIL.WebPImagePlugin", "PIL._webp"]
 
 a = Analysis(
     [str(ROOT / "tools" / "fbd_md_gui.py")],
@@ -39,7 +45,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=["numpy"],
+    excludes=EXCLUDES,
     noarchive=False,
 )
 pyz = PYZ(a.pure)

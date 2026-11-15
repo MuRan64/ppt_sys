@@ -50,6 +50,8 @@ jobs:
           python -m pip install -r requirements-release.txt
 
       - name: Build Universal 2 application
+        env:
+          FBD_UNIVERSAL2: '1'
         run: |
           python -m PyInstaller --clean --noconfirm packaging/fbd_to_ppt.spec
 
