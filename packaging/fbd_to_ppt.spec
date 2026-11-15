@@ -48,6 +48,7 @@ if sys.platform == "darwin":
         pyz, a.scripts, a.binaries, a.datas, [], name="FbdToPpt",
         debug=False, bootloader_ignore_signals=False, strip=False, upx=False,
         console=False,
+        target_arch="universal2",
     )
     app = BUNDLE(exe, name="FbdToPpt.app", bundle_identifier="com.fbdtoppt.app")
 else:

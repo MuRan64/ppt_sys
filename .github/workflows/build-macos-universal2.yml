@@ -51,9 +51,7 @@ jobs:
 
       - name: Build Universal 2 application
         run: |
-          python -m PyInstaller --clean --noconfirm \
-            --target-architecture universal2 \
-            packaging/fbd_to_ppt.spec
+          python -m PyInstaller --clean --noconfirm packaging/fbd_to_ppt.spec
 
       - name: Verify application architectures
         shell: bash
