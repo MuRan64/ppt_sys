@@ -34,3 +34,7 @@ python -m PyInstaller --clean --noconfirm packaging/fbd_to_ppt.spec
 ```
 
 WSL 只能生成 Linux 版本，不能替代 Windows 编译 EXE 或 macOS 编译 APP。
+
+## macOS Universal 2 编译
+
+推送 `.github/workflows/build-macos-universal2.yml` 后，在 GitHub 的 Actions 页面手动运行 `Build macOS Universal 2 application`。该任务会使用 Universal 2 Python，并在构建后用 `lipo` 检查应用是否同时包含 `arm64` 和 `x86_64`。
