@@ -7,60 +7,48 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: macOS universal2
-    # The Python.org universal2 installer is used on an Apple Silicon host.
-    runs-on: macos-15
+  build-native:
+    name: Native ${{ matrix.name }} build
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: intel
+            runner: macos-15-intel
+            expected_arch: x86_64
+          - name: arm64
+            runner: macos-15
+            expected_arch: arm64
 
     steps:
       - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Install universal2 Python
-        shell: bash
-        run: |
-          set -euo pipefail
-          python_version="3.11.9"
-          installer="python-${python_version}-macos11.pkg"
-          curl --fail --location --retry 3 \
-            "https://www.python.org/ftp/python/${python_version}/${installer}" \
-            --output "${RUNNER_TEMP}/${installer}"
-          sudo installer -pkg "${RUNNER_TEMP}/${installer}" -target /
-          echo "/Library/Frameworks/Python.framework/Versions/3.11/bin" >> "${GITHUB_PATH}"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Verify universal2 Python
+      - name: Verify runner architecture
         shell: bash
         run: |
           set -euo pipefail
-          python3.11 --version
-          python_binary="$(command -v python3.11)"
-          file "${python_binary}"
-          lipo -info "${python_binary}"
-
-      - name: Create build environment
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3.11 -m venv "${RUNNER_TEMP}/fbd-universal2-venv"
-          echo "${RUNNER_TEMP}/fbd-universal2-venv/bin" >> "${GITHUB_PATH}"
+          actual_arch="$(uname -m)"
+          echo "Runner architecture: ${actual_arch}"
+          test "${actual_arch}" = "${{ matrix.expected_arch }}"
 
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-release.txt
-          mkdir -p "${RUNNER_TEMP}/universal2-wheels"
-          python -m pip download --only-binary=:all: --no-deps \
-            --platform macosx_11_0_universal2 \
-            --python-version 3.11 --implementation cp --abi cp311 \
-            Pillow==13.0.0 --dest "${RUNNER_TEMP}/universal2-wheels"
-          python -m pip install --force-reinstall --no-deps \
-            "${RUNNER_TEMP}/universal2-wheels"/Pillow-*.whl
 
-      - name: Build Universal 2 application
-        run: |
-          python -m PyInstaller --clean --noconfirm packaging/fbd_to_ppt.spec
+      - name: Build native application
+        env:
+          FBD_TARGET_ARCH: ${{ matrix.expected_arch }}
+        run: python -m PyInstaller --clean --noconfirm packaging/fbd_to_ppt.spec
 
-      - name: Verify application architectures
+      - name: Verify native application
         shell: bash
         run: |
           set -euo pipefail
@@ -69,14 +57,82 @@ jobs:
           file "${app_binary}"
           lipo -info "${app_binary}"
 
-      - name: Package application
+      - name: Package native application
         shell: bash
         run: |
           set -euo pipefail
           ditto -c -k --sequesterRsrc --keepParent \
-            "dist/FbdToPpt.app" "FbdToPpt-macos-universal2.zip"
+            "dist/FbdToPpt.app" "FbdToPpt-native-${{ matrix.name }}.zip"
 
-      - name: Upload application
+      - name: Upload native application
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.name }}
+          path: FbdToPpt-native-${{ matrix.name }}.zip
+          if-no-files-found: error
+
+  merge:
+    name: Merge Universal 2 application
+    needs: build-native
+    runs-on: macos-15
+
+    steps:
+      - name: Download native applications
+        uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          path: artifacts
+
+      - name: Extract native applications
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p intel arm64
+          ditto -x -k artifacts/native-intel/FbdToPpt-native-intel.zip intel
+          ditto -x -k artifacts/native-arm64/FbdToPpt-native-arm64.zip arm64
+          test -d "intel/FbdToPpt.app"
+          test -d "arm64/FbdToPpt.app"
+
+      - name: Merge Mach-O binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf universal
+          mkdir -p universal
+          cp -R "intel/FbdToPpt.app" "universal/FbdToPpt.app"
+
+          while IFS= read -r arm_file; do
+            relative="${arm_file#arm64/FbdToPpt.app/}"
+            intel_file="intel/FbdToPpt.app/${relative}"
+            universal_file="universal/FbdToPpt.app/${relative}"
+
+            if file -b "${arm_file}" | grep -q 'Mach-O'; then
+              mkdir -p "$(dirname "${universal_file}")"
+              if [ -f "${intel_file}" ] && file -b "${intel_file}" | grep -q 'Mach-O'; then
+                lipo -create "${intel_file}" "${arm_file}" -output "${universal_file}"
+              else
+                cp -p "${arm_file}" "${universal_file}"
+              fi
+            fi
+          done < <(find "arm64/FbdToPpt.app" -type f)
+
+      - name: Verify Universal 2 application
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_binary="universal/FbdToPpt.app/Contents/MacOS/FbdToPpt"
+          test -f "${app_binary}"
+          file "${app_binary}"
+          lipo -info "${app_binary}" | grep -E 'x86_64|arm64'
+
+      - name: Package Universal 2 application
+        shell: bash
+        run: |
+          set -euo pipefail
+          ditto -c -k --sequesterRsrc --keepParent \
+            "universal/FbdToPpt.app" "FbdToPpt-macos-universal2.zip"
+
+      - name: Upload Universal 2 application
         uses: actions/upload-artifact@v4
         with:
           name: FbdToPpt-macos-universal2

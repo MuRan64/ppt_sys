@@ -2,6 +2,7 @@
 # Run from this release_build directory, or pass the absolute spec path.
 
 from pathlib import Path
+import os
 import sys
 from PyInstaller.utils.hooks import collect_submodules
 
@@ -29,6 +30,7 @@ BOOK_ADAPTERS = [
 datas = [(str(ROOT / "static"), "static")]
 hiddenimports = TEST_MODULES + BOOK_ADAPTERS + ["app_resources", "template_library", "generation_state"]
 hiddenimports += collect_submodules("PIL")
+TARGET_ARCH = os.environ.get("FBD_TARGET_ARCH") or None
 
 a = Analysis(
     [str(ROOT / "tools" / "fbd_md_gui.py")],
@@ -48,7 +50,7 @@ if sys.platform == "darwin":
         pyz, a.scripts, a.binaries, a.datas, [], name="FbdToPpt",
         debug=False, bootloader_ignore_signals=False, strip=False, upx=False,
         console=False,
-        target_arch="universal2",
+        target_arch=TARGET_ARCH,
     )
     app = BUNDLE(exe, name="FbdToPpt.app", bundle_identifier="com.fbdtoppt.app")
 else:
