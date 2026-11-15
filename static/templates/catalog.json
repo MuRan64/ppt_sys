@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "templates": [
+    {"subject": "语文", "book": "文言梳理", "slot": "primary", "label": "文言梳理 · 默认模板", "filename": "文言梳理pptx模板.pptx"},
+    {"subject": "语文", "book": "三步进阶", "slot": "primary", "label": "三步进阶 · 默认模板", "filename": "文言文三步进阶模板.pptx"},
+    {"subject": "语文", "book": "必背古诗文", "slot": "primary", "label": "必背古诗文 · 默认模板", "filename": "必背古诗文模板.pptx"},
+    {"subject": "语文", "book": "高考组合加分练", "slot": "primary", "label": "组合加分练 · 默认模板", "filename": "组合加分练模板.pptx"},
+    {"subject": "语文", "book": "文言文阅读加分练", "slot": "primary", "label": "文言文阅读加分练 · 默认模板", "filename": "文言文阅读加分练模板.pptx"},
+    {"subject": "语文", "book": "筑基臻选100练", "slot": "primary", "label": "筑基 · 模块一默认模板", "filename": "筑基模块一模板.pptx"},
+    {"subject": "语文", "book": "筑基臻选100练", "slot": "secondary", "label": "筑基 · 模块二默认模板", "filename": "筑基模块二模板.pptx"},
+    {"subject": "语文", "book": "高考语文大一轮复习新方案", "slot": "primary", "label": "大一轮复习新方案 · 默认模板", "filename": "大一轮复习新方案模板.pptx"},
+    {"subject": "英语", "book": "词汇语境记忆", "slot": "primary", "label": "词汇语境记忆 · 默认模板", "filename": "高中语境记忆模板.pptx"}
+  ]
+}

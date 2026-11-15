@@ -1,0 +1,4 @@
+Pillow>=10
+numpy>=1.24
+pyinstaller>=6
+pywin32>=306; platform_system == "Windows"
