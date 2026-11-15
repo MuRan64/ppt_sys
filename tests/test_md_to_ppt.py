@@ -4030,6 +4030,7 @@ def build_deck(
     *,
     tif_search_dirs: list[Path],
     multiline_answer_min_width_pt: float = 0.0,
+    content_src_override: int | None = None,
 ) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     slide_specs: list[tuple[int, object]] = []
@@ -4039,6 +4040,8 @@ def build_deck(
     with zipfile.ZipFile(template, "r") as zin:
         slide_count_template = len([n for n in zin.namelist() if re.match(r"ppt/slides/slide\d+\.xml$", n)])
         title_src, content_src, final_sources, content_box = template_contract(slide_count_template)
+        if content_src_override is not None:
+            content_src = content_src_override
 
         generated_slides: list[tuple[int, bytes, bytes]] = []
         extra_media_assets: dict[str, bytes] = {}

@@ -736,7 +736,7 @@ class FbdMdApp(tk.Tk):
             if subject == "语文" and book == "必背古诗文":
                 if extra_fbd is None or pocket_fbd is None:
                     raise ValueError("语文《必背古诗文》需要同时选择册子 FBD 和口袋本 FBD。")
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "必背古诗文"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", "已选择适配：语文/必背古诗文，开始转换四个 FBD 并生成主书/小册子 PPT。"))
                 result = generate_bibei_book_pptx_from_fbd(
                     body_fbd=body_fbd,
@@ -760,7 +760,7 @@ class FbdMdApp(tk.Tk):
                 self.message_queue.put(("done", {"md_dir": str(run_dir), "ppt_dir": str(result.ppt_output_dir)}))
                 return
             if subject == "语文" and book == "高考组合加分练":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "高考组合加分练"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", "已选择适配：语文/高考组合加分练，开始转换正文/答案 FBD 并生成 PPT。"))
                 result = generate_zuhe_jiafen_pptx_from_fbd(
                     body_fbd=body_fbd,
@@ -776,7 +776,7 @@ class FbdMdApp(tk.Tk):
                 self.message_queue.put(("done", {"md_dir": str(result.md_run), "ppt_dir": str(result.ppt_output_dir)}))
                 return
             if subject == "语文" and book == "文言文阅读加分练":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "文言文阅读加分练"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", "已选择适配：语文/文言文阅读加分练，开始转换正文/答案 FBD 并生成 PPT。"))
                 result = generate_wenyan_yuedu_jiafen_pptx_from_fbd(
                     body_fbd=body_fbd,
@@ -792,7 +792,7 @@ class FbdMdApp(tk.Tk):
                 self.message_queue.put(("done", {"md_dir": str(result.md_run), "ppt_dir": str(result.ppt_output_dir)}))
                 return
             if subject == "语文" and book == "筑基臻选100练":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "筑基臻选100练"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", "已选择适配：语文/筑基臻选100练，开始转换正文/答案 FBD 并生成双模板 PPT。"))
                 result = generate_zhuji_100_pptx_from_fbd(
                     body_fbd=body_fbd,
@@ -927,7 +927,7 @@ class FbdMdApp(tk.Tk):
             ppt_outputs: list[str] = []
             ppt_output_dir: Path | None = None
             if adapter == "语文/文言梳理":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "文言梳理"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", f"已选择适配：{adapter}，开始由 MD 生成 PPT。"))
                 generated = generate_wenyan_pptx(
                     md_run=run_dir,
@@ -940,7 +940,7 @@ class FbdMdApp(tk.Tk):
                 ppt_outputs = [str(path) for path in generated]
                 self.message_queue.put(("log", f"PPT 已生成 {len(ppt_outputs)} 个，输出目录：{ppt_output_dir}"))
             elif adapter == "语文/三步进阶":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "三步进阶"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", f"已选择适配：{adapter}，开始由 MD 生成 PPT。"))
                 generated = generate_sanbu_pptx(
                     md_run=run_dir,
@@ -953,7 +953,7 @@ class FbdMdApp(tk.Tk):
                 ppt_outputs = [str(path) for path in generated]
                 self.message_queue.put(("log", f"PPT 已生成 {len(ppt_outputs)} 个，输出目录：{ppt_output_dir}"))
             elif adapter == "英语/词汇语境记忆":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "词汇语境记忆"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", f"已选择适配：{adapter}，开始由 MD 生成 PPT。"))
                 generated = generate_english_book_pptx(
                     md_run=run_dir,
@@ -965,7 +965,7 @@ class FbdMdApp(tk.Tk):
                 ppt_outputs = [str(path) for path in generated]
                 self.message_queue.put(("log", f"PPT 已生成 {len(ppt_outputs)} 个，输出目录：{ppt_output_dir}"))
             elif adapter == "语文/高考语文大一轮复习新方案":
-                ppt_output_dir = DEFAULT_PPT_OUTPUT_ROOT / run_name / "高考语文大一轮复习新方案"
+                ppt_output_dir = run_dir
                 self.message_queue.put(("log", f"已选择适配：{adapter}，开始由 MD 生成分专题 PPT。"))
                 generated = generate_yilun_pptx(
                     md_run=run_dir,

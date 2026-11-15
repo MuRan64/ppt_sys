@@ -1961,7 +1961,19 @@ def generate_sanbu_pptx(
                 deck_answer_map[wenyan.piece_key(display_piece)] = answer_piece
         output = output_dir / file_name
         emit(f"[{group_index}/{len(selected_groups)}] 生成：{output.name}")
-        wenyan.build_deck(template, output, group_pieces, deck_answer_map, volume, start, end, tif_search_dirs=tif_search_dirs)
+        # The three-step template's slide 5 uses a back-cover layout with a
+        # promotional banner. Use the plain content source slide instead.
+        wenyan.build_deck(
+            template,
+            output,
+            group_pieces,
+            deck_answer_map,
+            volume,
+            start,
+            end,
+            tif_search_dirs=tif_search_dirs,
+            content_src_override=4,
+        )
         generated.append(output)
         emit(f"已生成：{output}，篇目：{', '.join(f'{p.num}.{p.title}' for p in group_pieces)}")
 
